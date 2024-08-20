@@ -1,0 +1,112 @@
+
+# Import necessary libraries
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# Set the visualization style
+sns.set(style="whitegrid")
+ 
+# Load the dataset
+url = 'https://raw.githubusercontent.com/datasciencedojo/datasets/master/titanic.csv'
+df = pd.read_csv(url)
+
+# 1. Understanding the Dataset
+print("Shape of the dataset:", df.shape)
+print("\nData Types:")
+print(df.dtypes)
+
+# Display the first few rows
+print("\nFirst 5 rows:")
+print(df.head())
+
+# Check for missing values
+print("\nMissing Values:")
+print(df.isnull().sum())
+
+# Statistical Summary
+print("\nStatistical Summary:")
+print(df.describe())
+
+# 2. Univariate Analysis
+# Distribution of numerical features
+df.hist(figsize=(12, 10), bins=20)
+plt.show()
+
+# Distribution of categorical features
+categorical_features = ['Survived', 'Pclass', 'Sex', 'Embarked']
+for feature in categorical_features:
+    sns.countplot(x=feature, data=df)
+    plt.title(f'Distribution of {feature}')
+    plt.show()
+
+# 3. Bivariate Analysis
+# Numerical vs Numerical (e.g., Age vs Fare)
+sns.scatterplot(x='Age', y='Fare', data=df)
+plt.title('Age vs Fare')
+plt.show()
+
+# Correlation matrix
+correlation_matrix = df.corr()
+sns.heatmap(correlation_matrix, annot=True, cmap='coolwarm')
+plt.title('Correlation Matrix')
+plt.show()
+
+# Categorical vs Numerical (e.g., Survived vs Age)
+sns.boxplot(x='Survived', y='Age', data=df)
+plt.title('Survival vs Age')
+plt.show()
+
+# 4. Multivariate Analysis
+# Pairplot for numerical features
+sns.pairplot(df[['Age', 'Fare', 'Parch', 'SibSp', 'Survived']], hue='Survived')
+plt.show()
+
+# 5. Handling Missing Values
+# Check missing values again
+print("\nMissing Values after analysis:")
+print(df.isnull().sum())
+
+# Impute missing Age values with the median
+df['Age'].fillna(df['Age'].median(), inplace=True)
+
+# Impute missing Embarked values with the mode
+df['Embarked'].fillna(df['Embarked'].mode()[0], inplace=True)
+
+# Drop Cabin column due to too many missing values
+df.drop(columns='Cabin', inplace=True)
+
+# Verify if there are any missing values left
+print("\nMissing Values after imputation:")
+print(df.isnull().sum())
+
+# 6. Outlier Detection and Treatment
+# Boxplot to detect outliers in 'Fare'
+sns.boxplot(x=df['Fare'])
+plt.title('Boxplot of Fare')
+plt.show()
+
+# Handling outliers (Optional: Cap at 99th percentile)
+fare_upper_limit = df['Fare'].quantile(0.99)
+df['Fare'] = np.where(df['Fare'] > fare_upper_limit, fare_upper_limit, df['Fare'])
+
+# 7. Feature Engineering
+# Create a new feature for Family Size
+df['FamilySize'] = df['SibSp'] + df['Parch'] + 1
+
+# Create a new feature for IsAlone (1 if alone, 0 otherwise)
+df['IsAlone'] = np.where(df['FamilySize'] == 1, 1, 0)
+
+# 8. Data Visualization
+# Heatmap to show correlations after feature engineering
+sns.heatmap(df.corr(), annot=True, cmap='viridis')
+plt.title('Correlation Matrix after Feature Engineering')
+plt.show()
+
+# 9. Insights and Findings
+# Based on the EDA, summarize key findings
+
+# 10. Conclusion
+# Discuss next steps such as modeling or further data exploration
+
+print("\nEDA Complete!")
